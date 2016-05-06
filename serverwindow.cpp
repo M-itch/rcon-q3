@@ -6,12 +6,15 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QStandardPaths>
 #include <utility> // std::move
 #ifdef Q_OS_WIN
 #include <QWinJumpList>
 #include <QWinJumpListCategory>
 #include <QWinJumpListItem>
 #endif
+
+QString ServerWindow::serverFileNameFormat = "%1/servers.dat";
 
 ServerWindow::ServerWindow(QWidget* parent) :
     QMainWindow(parent),
@@ -26,10 +29,13 @@ ServerWindow::~ServerWindow()
     delete ui;
 }
 
-void ServerWindow::connectToServer(QString serverName)
+bool ServerWindow::connectToServer(QString serverName)
 {
     if (!serverList.contains(serverName)) {
-        return;
+        QMessageBox::critical(this,
+                              QApplication::applicationName(),
+                              tr("The profile name does not exist in the server list."));
+        return false;
     }
 
     Server s = serverList.value(serverName);
@@ -52,6 +58,7 @@ void ServerWindow::connectToServer(QString serverName)
     commandWindow->setAttribute(Qt::WA_DeleteOnClose, true);
     commandWindow->show();
     this->hide();
+    return true;
 }
 
 void ServerWindow::on_connectButton_clicked()
@@ -147,7 +154,8 @@ void ServerWindow::updateComboBoxItems(QComboBox* combo, QString newItemText)
 
 void ServerWindow::readServers()
 {
-    QFile file("servers.dat");
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QFile file(QString(serverFileNameFormat).arg(path));
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open servers file.");
         return;
@@ -174,7 +182,13 @@ void ServerWindow::readServers()
 
 void ServerWindow::writeServers()
 {
-    QFile file("servers.dat");
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dir(path);
+    if (!dir.exists()) {
+        dir.mkpath(path);
+    }
+
+    QFile file(QString(serverFileNameFormat).arg(path));
     if (!file.open(QIODevice::WriteOnly)) {
         qWarning("Couldn't write to servers file.");
         return;

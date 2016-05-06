@@ -4,12 +4,17 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setApplicationName("qtercon");
     ServerWindow w;
-    w.show();
 
+    bool connectedToServer = false;
     QStringList arguments = a.arguments();
-    if (arguments.size() >= 2 && arguments.first() == "--connect") {
-        w.connectToServer(arguments.at(1));
+    if (arguments.size() >= 3 && arguments.at(1) == "--connect") {
+        connectedToServer = w.connectToServer(arguments.at(2));
+    }
+
+    if (!connectedToServer) {
+        w.show();
     }
 
     return a.exec();

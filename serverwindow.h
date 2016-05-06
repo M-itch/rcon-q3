@@ -16,7 +16,7 @@ class ServerWindow : public QMainWindow
 public:
     explicit ServerWindow(QWidget* parent = 0);
     ~ServerWindow();
-    void connectToServer(QString serverName);
+    bool connectToServer(QString serverName);
 
 private slots:
     void on_connectButton_clicked();
@@ -29,6 +29,7 @@ private:
     Ui::ServerWindow *ui;
     QMap<QString, Server> serverList;
     QString defaultServer;
+    static QString serverFileNameFormat;
     void updateComboBoxItems(QComboBox* combo, QString newItemText);
     void readServers();
     void writeServers();
