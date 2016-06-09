@@ -75,6 +75,7 @@ void CommandWindow::onReceiveStatus(QByteArray output)
     Status status = StatusParser::parse(output);
     QMap<QString, QString> v = std::move(status.variables);
     QList<Player> p = std::move(status.players);
+    playerModel->setPlayers(p);
     int ping = this->status->getPing();
     QString serverStatus = (ping > 0) ? QString(" ~ %1 ms").arg(ping) : "";
     setWindowTitle(QString("%1 - %2 %3 [%4/%5]%6").arg(baseWindowTitle)
@@ -85,10 +86,12 @@ void CommandWindow::onReceiveStatus(QByteArray output)
                                                   .arg(serverStatus));
 
     QString hostname = OutputParser::removeColors(v.value("sv_hostname"));
-    ui->statusbar->showMessage(QString("%1 (%2) - %3").arg(v.value("mapname"))
-                                                      .arg(v.value("g_gametype"))
-                                                      .arg(hostname));
-    playerModel->setPlayers(p);
+    QString statusMessage = QString("%1 (%2) - %3").arg(v.value("mapname"))
+                            .arg(v.value("g_gametype"))
+                            .arg(hostname);
+    if (statusMessage != ui->statusbar->currentMessage()) {
+        ui->statusbar->showMessage(statusMessage);
+    }
 }
 
 void CommandWindow::onReceiveRcon(QByteArray output)
