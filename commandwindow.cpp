@@ -11,7 +11,7 @@
 #include <QCompleter>
 #include <QMessageBox>
 
-QString CommandWindow::logFileNameFormat = "log_%1_%2.log";
+QString CommandWindow::logFileNameFormat = "%1/log_%2_%3.log";
 QString CommandWindow::autoCompletionFileName = "commands.txt";
 QString CommandWindow::preferencesFileName = "preferences.ini";
 
@@ -24,7 +24,10 @@ CommandWindow::CommandWindow(Server server, QMainWindow* mainWindow, QWidget* pa
 {
     ui->setupUi(this);
     lastCommand = QDateTime::currentDateTime().addDays(-1);
-    logFileName = QString(logFileNameFormat).arg(server.getIp()).arg(server.getPort());
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    logFileName = QString(logFileNameFormat).arg(dataPath)
+                                            .arg(server.getIp())
+                                            .arg(server.getPort());
     status = new Query(server.getIp(), server.getPort());
     rcon = new Rcon(std::move(server));
     playerModel = new PlayerTableModel(this);
@@ -216,4 +219,15 @@ void CommandWindow::openFileAsDefault(QString fileName)
                                   QString("'%1' does not exist.").arg(fileName));
         }
     }
+}
+
+void CommandWindow::on_actionAbout_triggered()
+{
+    QString text = QString("%1 - %2\nThis program uses Qt version %3.")
+                   .arg(QApplication::applicationVersion())
+                   .arg(GIT_VERSION)
+                   .arg(QT_VERSION_STR);
+    QMessageBox::about(this,
+                       QApplication::applicationName(),
+                       text);
 }

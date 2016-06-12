@@ -40,6 +40,8 @@ private slots:
     void on_actionAuto_completion_commands_triggered();
     void on_actionPlayer_list_triggered();
 
+    void on_actionAbout_triggered();
+
 private:
     Ui::CommandWindow *ui;
     QMainWindow* mainWindow;

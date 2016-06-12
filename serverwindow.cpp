@@ -56,6 +56,7 @@ bool ServerWindow::connectToServer(QString serverName)
 
     CommandWindow* commandWindow = new CommandWindow(s, this);
     commandWindow->setAttribute(Qt::WA_DeleteOnClose, true);
+    commandWindow->raise();
     commandWindow->show();
     this->hide();
     return true;
