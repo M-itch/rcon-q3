@@ -24,13 +24,13 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event);
-    void resizeEvent(QResizeEvent *event);
 
 private slots:
     void on_sendButton_clicked();
     void onReceiveStatus(QByteArray output);
     void onReceiveRcon(QByteArray output);
     void requestServerStatus();
+    void onFirstRun();
     void on_actionStatus_triggered();
     void on_actionDisconnect_triggered();
     void on_actionServer_info_triggered();
@@ -39,7 +39,6 @@ private slots:
     void on_actionView_log_triggered();
     void on_actionAuto_completion_commands_triggered();
     void on_actionPlayer_list_triggered();
-
     void on_actionAbout_triggered();
 
 private:

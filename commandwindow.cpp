@@ -19,28 +19,29 @@ CommandWindow::CommandWindow(Server server, QMainWindow* mainWindow, QWidget* pa
     QMainWindow(parent),
     ui(new Ui::CommandWindow),
     mainWindow(mainWindow),
+    status(new Query(server.getIp(), server.getPort())),
+    playerModel(new PlayerTableModel(this)),
     preferences(preferencesFileName, QSettings::IniFormat),
     disconnect(false)
 {
     ui->setupUi(this);
+    rcon = new Rcon(std::move(server));
+    ui->playerTableView->setModel(playerModel);
+    ui->splitter->setStretchFactor(0, 3);
     lastCommand = QDateTime::currentDateTime().addDays(-1);
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     logFileName = QString(logFileNameFormat).arg(dataPath)
                                             .arg(server.getIp())
                                             .arg(server.getPort());
-    status = new Query(server.getIp(), server.getPort());
-    rcon = new Rcon(std::move(server));
-    playerModel = new PlayerTableModel(this);
-    ui->playerTableView->setModel(playerModel);
+    baseWindowTitle = windowTitle();
+    statusTimer.setInterval(preferences.value("getstatus_interval", 2000).toInt());
     connect(status, SIGNAL(receive(QByteArray)), this, SLOT(onReceiveStatus(QByteArray)));
     connect(rcon, SIGNAL(receive(QByteArray)), this, SLOT(onReceiveRcon(QByteArray)));
     connect(ui->commandBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(on_sendButton_clicked()));
     connect(&statusTimer, SIGNAL(timeout()), this, SLOT(requestServerStatus()));
-    baseWindowTitle = windowTitle();
-    statusTimer.setInterval(preferences.value("getstatus_interval", 2000).toInt());
     statusTimer.start();
     loadAutoCompletionCommands();
-    QTimer::singleShot(250, this, SLOT(on_actionStatus_triggered()));
+    QTimer::singleShot(250, this, SLOT(onFirstRun()));
 }
 
 CommandWindow::~CommandWindow()
@@ -61,11 +62,6 @@ void CommandWindow::closeEvent(QCloseEvent* event)
     }
 
     QMainWindow::closeEvent(event);
-}
-
-void CommandWindow::resizeEvent(QResizeEvent *)
-{
-    ui->playerTableView->setFixedWidth((int)(this->size().width() * 0.25));
 }
 
 void CommandWindow::on_sendButton_clicked()
@@ -115,6 +111,12 @@ void CommandWindow::onReceiveRcon(QByteArray output)
 void CommandWindow::requestServerStatus()
 {
     status->send("getstatus");
+}
+
+void CommandWindow::onFirstRun()
+{
+    requestServerStatus();
+    on_actionStatus_triggered();
 }
 
 void CommandWindow::on_actionStatus_triggered()
