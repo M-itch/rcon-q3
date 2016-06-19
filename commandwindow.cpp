@@ -1,4 +1,5 @@
 #include "commandwindow.h"
+#include "htmldelegate.h"
 #include "ui_commandwindow.h"
 #include <parser/outputparser.h>
 #include <parser/statusparser.h>
@@ -27,6 +28,7 @@ CommandWindow::CommandWindow(Server server, QMainWindow* mainWindow, QWidget* pa
     ui->setupUi(this);
     rcon = new Rcon(std::move(server));
     ui->playerTableView->setModel(playerModel);
+    ui->playerTableView->setItemDelegate(new HtmlDelegate());
     ui->splitter->setStretchFactor(0, 3);
     lastCommand = QDateTime::currentDateTime().addDays(-1);
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -102,7 +104,7 @@ void CommandWindow::onReceiveRcon(QByteArray output)
     while (i.hasNext()) {
         Output line = i.next();
         writeToLog(line.getText());
-        ui->commandOutput->insertHtml(line.toHtml());
+        ui->commandOutput->insertHtml(line.toPreFormatHtml());
     }
 
     ui->commandOutput->setTextCursor(prevCursor);

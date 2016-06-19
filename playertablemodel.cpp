@@ -1,4 +1,5 @@
 #include "playertablemodel.h"
+#include <parser/outputparser.h>
 #include <utility> // std::move
 
 PlayerTableModel::PlayerTableModel(QObject* parent)
@@ -57,7 +58,7 @@ QVariant PlayerTableModel::getDataFromIndex(const QModelIndex& index) const {
     QVariant data;
     if (index.row() < players.size()) {
         if (index.column() == 0) {
-            data = players[index.row()].getName();
+            data = players[index.row()].getNameHtml();
         } else if (index.column() == 1) {
             data = players[index.row()].getScore();
         } else if (index.column() == 2) {

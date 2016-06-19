@@ -13,6 +13,7 @@ public:
     QColor getColor() const;
     void setColor(const QColor &value);
     QString toHtml();
+    QString toPreFormatHtml();
 private:
     QString text;
     QColor color;

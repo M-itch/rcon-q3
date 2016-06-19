@@ -7,6 +7,17 @@ QList<Output> OutputParser::parse(QString data) {
     return splitColors(data);
 }
 
+QString OutputParser::parseToHtml(QString data) {
+    QList<Output> list = parse(data);
+    QString html = "";
+    QList<Output>::iterator i;
+    for (i = list.begin(); i != list.end(); ++i) {
+        html.append(i->toHtml());
+    }
+
+    return html;
+}
+
 QList<Output> OutputParser::splitColors(QString data) {
     int startIndex = 0;
     QColor color = Qt::black;
@@ -22,7 +33,7 @@ QList<Output> OutputParser::splitColors(QString data) {
     }
 
     output.append(std::move(Output(data.right(data.length() - startIndex),
-                                   color)));  // last text
+                                   color))); // last text
 
     return output;
 }

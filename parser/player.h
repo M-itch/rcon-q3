@@ -9,6 +9,7 @@ public:
     Player(QString name = "", int score = 0, int ping = 0);
     QString getName() const;
     QString getFullName() const;
+    QString getNameHtml() const;
     void setName(const QString& value);
     int getScore() const;
     void setScore(int value);
@@ -17,6 +18,7 @@ public:
 private:
     QString name;
     QString fullName;
+    QString nameHtml;
     int score;
     int ping;
 };

@@ -37,7 +37,8 @@ SOURCES += main.cpp\
     parser/statusparser.cpp \
     parser/player.cpp \
     parser/status.cpp \
-    playertablemodel.cpp
+    playertablemodel.cpp \
+    htmldelegate.cpp
 
 HEADERS  += serverwindow.h \
     network\rcon.h \
@@ -49,7 +50,8 @@ HEADERS  += serverwindow.h \
     parser/statusparser.h \
     parser/player.h \
     parser/status.h \
-    playertablemodel.h
+    playertablemodel.h \
+    htmldelegate.h
 
 FORMS    += \
     commandwindow.ui \

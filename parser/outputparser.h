@@ -8,6 +8,7 @@ class OutputParser
 {
 public:
     static QList<Output> parse(QString data);
+    static QString parseToHtml(QString data);
     static QString stripPrintHeader(QString data);
     static QColor numberToColor(int number);
     static QString removeColors(QString data);

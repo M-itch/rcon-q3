@@ -22,6 +22,12 @@ void Output::setColor(const QColor &value) {
 }
 
 QString Output::toHtml() {
+    return QString("<font color='%1'>%2</font>").arg(color.name())
+                                                .arg(text)
+           .replace("\n", "<br />");
+}
+
+QString Output::toPreFormatHtml() {
     return QString("<font color='%1'><pre>%2</pre></font>").arg(color.name())
                                                            .arg(text)
            .replace("\n", "<br />");

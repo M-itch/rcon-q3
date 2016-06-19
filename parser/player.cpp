@@ -6,6 +6,7 @@ Player::Player(QString name, int score, int ping)
       score(score),
       ping(ping) {
     this->name = OutputParser::removeColors(name);
+    this->nameHtml = OutputParser::parseToHtml(fullName);
 }
 
 QString Player::getName() const {
@@ -16,9 +17,14 @@ QString Player::getFullName() const {
     return fullName;
 }
 
+QString Player::getNameHtml() const {
+    return nameHtml;
+}
+
 void Player::setName(const QString& value) {
     fullName = value;
     name = OutputParser::removeColors(value);
+    nameHtml = OutputParser::parseToHtml(fullName);
 }
 
 int Player::getScore() const {
