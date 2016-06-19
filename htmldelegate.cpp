@@ -14,7 +14,7 @@ void HtmlDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, 
 
     /* Call this to get the focus rect and selection background. */
     options.text = "";
-    options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
+    options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
 
     /* Draw using our rich text document. */
     painter->translate(options.rect.left(), options.rect.top());

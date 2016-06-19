@@ -22,13 +22,18 @@ CommandWindow::CommandWindow(Server server, QMainWindow* mainWindow, QWidget* pa
     mainWindow(mainWindow),
     status(new Query(server.getIp(), server.getPort())),
     playerModel(new PlayerTableModel(this)),
+    proxyModel(new QSortFilterProxyModel()),
     preferences(preferencesFileName, QSettings::IniFormat),
     disconnect(false)
 {
     ui->setupUi(this);
     rcon = new Rcon(std::move(server));
-    ui->playerTableView->setModel(playerModel);
+    proxyModel->setSourceModel(playerModel);
+    ui->playerTableView->setModel(proxyModel);
     ui->playerTableView->setItemDelegate(new HtmlDelegate());
+    ui->playerTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->playerTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
+    ui->playerTableView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     ui->splitter->setStretchFactor(0, 3);
     lastCommand = QDateTime::currentDateTime().addDays(-1);
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -50,6 +55,7 @@ CommandWindow::~CommandWindow()
 {
     delete ui;
     delete playerModel;
+    delete proxyModel;
     delete status;
     delete rcon;
 }
@@ -227,7 +233,7 @@ void CommandWindow::openFileAsDefault(QString fileName)
 
 void CommandWindow::on_actionAbout_triggered()
 {
-    QString text = QString("%1 - %2\nThis program uses Qt version %3.")
+    QString text = QString("%1 - <a href='https://github.com/M-itch/qtercon'>%2</a><br />This program uses Qt version %3.")
                    .arg(QApplication::applicationVersion())
                    .arg(GIT_VERSION)
                    .arg(QT_VERSION_STR);

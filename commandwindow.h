@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 #include <QTimer>
 #include <network/rcon.h>
 #include <network/server.h>
@@ -48,6 +49,7 @@ private:
     Query* status;
     Rcon* rcon;
     PlayerTableModel* playerModel;
+    QSortFilterProxyModel* proxyModel;
     QDateTime lastCommand;
     QString baseWindowTitle;
     QString logFileName;
