@@ -2,8 +2,10 @@
 #include <QRegularExpression>
 #include <utility> // std::move
 
+const QString OutputParser::printHeader = "\xFF\xFF\xFF\xFFprint\n";
+
 QList<Output> OutputParser::parse(QString data) {
-    data = stripPrintHeader(data);
+    data = removePrintHeader(data);
     return splitColors(data);
 }
 
@@ -42,12 +44,8 @@ QString OutputParser::removeColors(QString data) {
     return data.remove(QRegularExpression("\\^\\d"));
 }
 
-QString OutputParser::stripPrintHeader(QString data) {
-    if (data.startsWith("\xFF\xFF\xFF\xFFprint\n")) {
-        data = data.remove(0, 10);
-    }
-
-    return data;
+QString OutputParser::removePrintHeader(QString data) {
+    return data.remove(printHeader, Qt::CaseSensitive);
 }
 
 QColor OutputParser::numberToColor(int number) {
