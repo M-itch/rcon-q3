@@ -219,7 +219,7 @@ void CommandWindow::loadAutoCompletionCommands()
 void CommandWindow::openFileAsDefault(QString fileName)
 {
     if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
-        QDesktopServices::openUrl(QUrl(QDir(fileName).currentPath()));
+        QDesktopServices::openUrl(QUrl(QFileInfo(fileName).absolutePath()));
     } else {
         if (QFile(fileName).exists()) {
             QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
