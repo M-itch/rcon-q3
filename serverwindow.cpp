@@ -38,7 +38,7 @@ bool ServerWindow::connectToServer(QString serverName)
         return false;
     }
 
-    Server s = serverList.value(serverName);
+    const Server s = serverList.value(serverName);
 
 #ifdef Q_OS_WIN
     QWinJumpList jumpList;

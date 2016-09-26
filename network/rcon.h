@@ -9,12 +9,11 @@ class Rcon : public Query
 {
     Q_OBJECT
 public:
-    Rcon(Server server, QObject* parent = 0);
+    Rcon(const Server server, QObject* parent = 0);
     void setPassword(QByteArray password);
-    Server* getServer();
     void send(QByteArray command);
 private:
-    Server server;
+    QByteArray rconPassword;
 };
 
 #endif // RCON_H

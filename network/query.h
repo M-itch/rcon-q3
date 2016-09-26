@@ -8,10 +8,9 @@ class Query : public QObject
 {
     Q_OBJECT
 public:
-    Query(QString server,
+    Query(const QString& server,
           int port,
           QObject* parent = 0);
-    virtual ~Query();
     int getPing();
     void send(QByteArray command);
 signals:
@@ -22,7 +21,7 @@ private slots:
 private:
     QDateTime lastRequest;
     QDateTime firstResponse;
-    QUdpSocket* socket;
+    QUdpSocket socket;
     const QByteArray Q3_PREFIX = "\xFF\xFF\xFF\xFF";
 };
 

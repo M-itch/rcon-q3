@@ -5,7 +5,6 @@
 #include <parser/statusparser.h>
 #include <QLineEdit>
 #include <QDateTime>
-#include <utility> // std::move
 #include <QDesktopServices>
 #include <QFile>
 #include <QDir>
@@ -16,18 +15,18 @@ QString CommandWindow::logFileNameFormat = "%1/log_%2_%3.log";
 QString CommandWindow::autoCompletionFileName = "commands.txt";
 QString CommandWindow::preferencesFileName = "preferences.ini";
 
-CommandWindow::CommandWindow(Server server, QMainWindow* mainWindow, QWidget* parent) :
+CommandWindow::CommandWindow(const Server server, QMainWindow* mainWindow, QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::CommandWindow),
     mainWindow(mainWindow),
     status(new Query(server.getIp(), server.getPort())),
+    rcon(new Rcon(server)),
     playerModel(new PlayerTableModel(this)),
     proxyModel(new QSortFilterProxyModel()),
     preferences(preferencesFileName, QSettings::IniFormat),
     disconnect(false)
 {
     ui->setupUi(this);
-    rcon = new Rcon(std::move(server));
     proxyModel->setSourceModel(playerModel);
     ui->playerTableView->setModel(proxyModel);
     ui->playerTableView->setItemDelegate(new HtmlDelegate());
