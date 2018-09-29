@@ -4,20 +4,24 @@
 
 const QString OutputParser::printHeader = "\xFF\xFF\xFF\xFFprint\n";
 
-QList<Output> OutputParser::parse(QString data) {
+QList<Output> OutputParser::parse(QString data, bool noDoubleColors) {
     data = removePrintHeader(data);
+    if (noDoubleColors) {
+        data = removeDoubleColors(data);
+    }
+
     return splitColors(data);
 }
 
 QString OutputParser::parseToHtml(QString data) {
     QList<Output> list = parse(data);
-    QString html = "";
+    QString output = "";
     QList<Output>::iterator i;
     for (i = list.begin(); i != list.end(); ++i) {
-        html.append(i->toHtml());
+        output.append(i->toHtml());
     }
 
-    return html;
+    return output;
 }
 
 QList<Output> OutputParser::splitColors(QString data) {
@@ -40,8 +44,17 @@ QList<Output> OutputParser::splitColors(QString data) {
     return output;
 }
 
+/// Removes ^x and ^^xx.
 QString OutputParser::removeColors(QString data) {
+    data.remove(QRegularExpression("\\^\\^\\d\\d"));
     return data.remove(QRegularExpression("\\^\\d"));
+}
+
+/// Replaces ^^x with ^.
+/// Before: ^^xy
+/// After: ^y
+QString OutputParser::removeDoubleColors(QString data) {
+    return data.replace(QRegularExpression("\\^\\^\\d"), "^");
 }
 
 QString OutputParser::removePrintHeader(QString data) {

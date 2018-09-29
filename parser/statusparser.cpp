@@ -2,6 +2,8 @@
 #include <QStringListIterator>
 #include <utility> // std::move
 
+const QString StatusParser::printStatusHeader = "\xFF\xFF\xFF\xFFstatusResponse\n";
+
 Status StatusParser::parse(QString data) {
     data = stripResponseHeader(data);
     QStringList playerList = data.split("\n");
@@ -26,8 +28,8 @@ Status StatusParser::parse(QString data) {
         QStringList playerData = line.split(" ");
         if(playerData.size() >= 3) {
             QString playerName = QStringList(playerData.mid(2)).join(" ");
-            playerName.chop(1);
-            playerName.remove(0, 1);
+            playerName.chop(1); // remove first "
+            playerName.remove(0, 1); // remove last "
             status.players.append(std::move(Player(playerName,
                                                    playerData[0].toInt(),
                                                    playerData[1].toInt())));
@@ -38,9 +40,5 @@ Status StatusParser::parse(QString data) {
 }
 
 QString StatusParser::stripResponseHeader(QString data) {
-    if (data.startsWith("\xFF\xFF\xFF\xFFstatusResponse\n")) {
-        data = data.remove(0, 19);
-    }
-
-    return data;
+    return data.remove(printStatusHeader, Qt::CaseSensitive);
 }

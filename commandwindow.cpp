@@ -102,7 +102,7 @@ void CommandWindow::onReceiveStatus(QByteArray output)
 
 void CommandWindow::onReceiveRcon(QByteArray output)
 {
-    QList<Output> parsedOutput = OutputParser::parse(output);
+    QList<Output> parsedOutput = OutputParser::parse(output, false);
     QListIterator<Output> i(parsedOutput);
     QTextCursor prevCursor = ui->commandOutput->textCursor();
     ui->commandOutput->moveCursor(QTextCursor::End);
