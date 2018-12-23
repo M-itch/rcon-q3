@@ -17,7 +17,7 @@ TARGET = qtercon
 TEMPLATE = app
 
 RC_ICONS = resources/codlogo.ico
-VERSION = 0.1
+VERSION = 0.1.0.9
 QMAKE_TARGET_PRODUCT = QteRcon
 QMAKE_TARGET_DESCRIPTION = QteRcon
 GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
