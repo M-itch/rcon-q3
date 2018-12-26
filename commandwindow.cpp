@@ -33,6 +33,7 @@ CommandWindow::CommandWindow(const Server server, QMainWindow* mainWindow, QWidg
     ui->playerTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->playerTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
     ui->playerTableView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    ui->playerTableView->sortByColumn(0, Qt::AscendingOrder);
     ui->splitter->setStretchFactor(0, 3);
     lastCommand = QDateTime::currentDateTime().addDays(-1);
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
