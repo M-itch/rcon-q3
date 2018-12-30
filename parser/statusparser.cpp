@@ -2,7 +2,7 @@
 #include <QStringListIterator>
 #include <utility> // std::move
 
-const QString StatusParser::printStatusHeader = "\xFF\xFF\xFF\xFFstatusResponse\n";
+const QString StatusParser::printStatusHeader = "ÿÿÿÿstatusResponse\n";
 
 Status StatusParser::parse(QString data) {
     data = stripResponseHeader(data);
@@ -10,8 +10,7 @@ Status StatusParser::parse(QString data) {
 
     QString variableData = playerList.first();
     playerList.removeFirst();
-    variableData.remove(0, 1); // remove first slash
-    QStringList variableList = variableData.split("\\");
+    QStringList variableList = variableData.split("\\", QString::SkipEmptyParts);
     QStringListIterator it(variableList);
     Status status;
     while (it.hasNext()) {

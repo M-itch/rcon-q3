@@ -42,8 +42,8 @@ CommandWindow::CommandWindow(const Server server, QMainWindow* mainWindow, QWidg
                                             .arg(server.getPort());
     baseWindowTitle = windowTitle();
     statusTimer.setInterval(preferences.value("getstatus_interval", 2000).toInt());
-    connect(status, SIGNAL(receive(QByteArray)), this, SLOT(onReceiveStatus(QByteArray)));
-    connect(rcon, SIGNAL(receive(QByteArray)), this, SLOT(onReceiveRcon(QByteArray)));
+    connect(status, SIGNAL(receive(QString)), this, SLOT(onReceiveStatus(QString)));
+    connect(rcon, SIGNAL(receive(QString)), this, SLOT(onReceiveRcon(QString)));
     connect(ui->commandBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(on_sendButton_clicked()));
     connect(&statusTimer, SIGNAL(timeout()), this, SLOT(requestServerStatus()));
     statusTimer.start();
@@ -77,7 +77,7 @@ void CommandWindow::on_sendButton_clicked()
     sendCommand(ui->commandBox->currentText().toUtf8());
 }
 
-void CommandWindow::onReceiveStatus(QByteArray output)
+void CommandWindow::onReceiveStatus(QString output)
 {
     Status status = StatusParser::parse(output);
     QMap<QString, QString> v = std::move(status.variables);
@@ -101,7 +101,7 @@ void CommandWindow::onReceiveStatus(QByteArray output)
     }
 }
 
-void CommandWindow::onReceiveRcon(QByteArray output)
+void CommandWindow::onReceiveRcon(QString output)
 {
     QList<Output> parsedOutput = OutputParser::parse(output, false);
     QListIterator<Output> i(parsedOutput);

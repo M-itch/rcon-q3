@@ -2,7 +2,7 @@
 #include <QRegularExpression>
 #include <utility> // std::move
 
-const QString OutputParser::printHeader = "\xFF\xFF\xFF\xFFprint\n";
+const QString OutputParser::printHeader = "ÿÿÿÿprint\n";
 
 QList<Output> OutputParser::parse(QString data, bool noDoubleColors) {
     data = removePrintHeader(data);

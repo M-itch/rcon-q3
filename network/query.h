@@ -14,7 +14,7 @@ public:
     int getPing();
     void send(QByteArray command);
 signals:
-    void receive(QByteArray output);
+    void receive(QString output);
     void connected();
 private slots:
     void readPendingDatagrams();

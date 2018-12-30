@@ -28,8 +28,8 @@ protected:
 
 private slots:
     void on_sendButton_clicked();
-    void onReceiveStatus(QByteArray output);
-    void onReceiveRcon(QByteArray output);
+    void onReceiveStatus(QString output);
+    void onReceiveRcon(QString output);
     void requestServerStatus();
     void onFirstRun();
     void on_actionStatus_triggered();

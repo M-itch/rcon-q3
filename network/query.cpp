@@ -35,6 +35,6 @@ void Query::readPendingDatagrams() {
             firstResponse = QDateTime::currentDateTime();
         }
 
-        emit receive(data);
+        emit receive(QString::fromLocal8Bit(data));
     }
 }
