@@ -14,9 +14,12 @@ class ServerWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ServerWindow(QWidget* parent = 0);
+    explicit ServerWindow(QWidget* parent = nullptr);
     ~ServerWindow();
     bool connectToServer(QString serverName);
+    void readServers(bool oldFormat = false);
+    void writeServers();
+    bool moveToNewAppFolderLocation(const QString& oldApplicationName);
 
 private slots:
     void on_connectButton_clicked();
@@ -26,13 +29,11 @@ private slots:
     void on_profileBox_currentIndexChanged(const QString& currentText);
 
 private:
+    const static QString serverFileNameFormat;
     Ui::ServerWindow *ui;
     QMap<QString, Server> serverList;
     QString defaultServer;
-    static QString serverFileNameFormat;
     void updateComboBoxItems(QComboBox* combo, QString newItemText);
-    void readServers();
-    void writeServers();
 };
 
 #endif // SERVERWINDOW_H

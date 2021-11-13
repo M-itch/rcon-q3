@@ -10,12 +10,13 @@
 #include <QDir>
 #include <QCompleter>
 #include <QMessageBox>
+#include <utility>
 
 QString CommandWindow::logFileNameFormat = "%1/log_%2_%3.log";
 QString CommandWindow::autoCompletionFileName = "commands.txt";
 QString CommandWindow::preferencesFileName = "preferences.ini";
 
-CommandWindow::CommandWindow(const Server server, QMainWindow* mainWindow, QWidget* parent) :
+CommandWindow::CommandWindow(const Server& server, QMainWindow* mainWindow, QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::CommandWindow),
     mainWindow(mainWindow),
@@ -23,6 +24,11 @@ CommandWindow::CommandWindow(const Server server, QMainWindow* mainWindow, QWidg
     rcon(new Rcon(server)),
     playerModel(new PlayerTableModel(this)),
     proxyModel(new QSortFilterProxyModel()),
+    lastCommand(QDateTime::currentDateTime().addDays(-1)),
+    baseWindowTitle(windowTitle()),
+    logFileName(QString(logFileNameFormat).arg(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
+                                            .arg(server.getIp())
+                                            .arg(server.getPort())),
     preferences(preferencesFileName, QSettings::IniFormat),
     disconnect(false)
 {
@@ -35,12 +41,6 @@ CommandWindow::CommandWindow(const Server server, QMainWindow* mainWindow, QWidg
     ui->playerTableView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     ui->playerTableView->sortByColumn(0, Qt::AscendingOrder);
     ui->splitter->setStretchFactor(0, 3);
-    lastCommand = QDateTime::currentDateTime().addDays(-1);
-    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    logFileName = QString(logFileNameFormat).arg(dataPath)
-                                            .arg(server.getIp())
-                                            .arg(server.getPort());
-    baseWindowTitle = windowTitle();
     statusTimer.setInterval(preferences.value("getstatus_interval", 2000).toInt());
     connect(status, SIGNAL(receive(QString)), this, SLOT(onReceiveStatus(QString)));
     connect(rcon, SIGNAL(receive(QString)), this, SLOT(onReceiveRcon(QString)));
@@ -79,16 +79,14 @@ void CommandWindow::on_sendButton_clicked()
 
 void CommandWindow::onReceiveStatus(QString output)
 {
-    Status status = StatusParser::parse(output);
-    QMap<QString, QString> v = std::move(status.variables);
-    QList<Player> p = std::move(status.players);
-    playerModel->setPlayers(p);
-    int ping = this->status->getPing();
-    QString serverStatus = (ping > 0) ? QString(" ~ %1 ms").arg(ping) : "";
+    Status statusData = StatusParser::parse(output);
+    QMap<QString, QString> v = std::move(statusData.variables);
+    playerModel->setPlayers(std::move(statusData.players));
+    QString serverStatus = (status->getPing() > 0) ? QString(" ~ %1 ms").arg(status->getPing()) : "";
     setWindowTitle(QString("%1 - %2 %3 [%4/%5]%6").arg(baseWindowTitle)
                                                   .arg(v.value("gamename"))
                                                   .arg(v.value("shortversion"))
-                                                  .arg(p.size())
+                                                  .arg(playerModel->getPlayerCount())
                                                   .arg(v.value("sv_maxclients"))
                                                   .arg(serverStatus));
 
@@ -103,17 +101,16 @@ void CommandWindow::onReceiveStatus(QString output)
 
 void CommandWindow::onReceiveRcon(QString output)
 {
-    QList<Output> parsedOutput = OutputParser::parse(output, false);
-    QListIterator<Output> i(parsedOutput);
-    QTextCursor prevCursor = ui->commandOutput->textCursor();
+    QTextCursor previousCursor = ui->commandOutput->textCursor();
     ui->commandOutput->moveCursor(QTextCursor::End);
-    while (i.hasNext()) {
-        Output line = i.next();
-        writeToLog(line.getText());
-        ui->commandOutput->insertHtml(line.toPreFormatHtml());
+
+    std::vector<Output> parsedOutput = OutputParser::parse(output, false);
+    for (auto i = parsedOutput.cbegin(); i < parsedOutput.cend(); ++i) {
+        writeToLog(i->getText());
+        ui->commandOutput->insertHtml(i->toPreFormatHtml());
     }
 
-    ui->commandOutput->setTextCursor(prevCursor);
+    ui->commandOutput->setTextCursor(previousCursor);
 }
 
 void CommandWindow::requestServerStatus()
@@ -224,20 +221,16 @@ void CommandWindow::openFileAsDefault(QString fileName)
         if (QFile(fileName).exists()) {
             QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
         } else {
-            QMessageBox::critical(this,
-                                  QApplication::applicationName(),
-                                  QString("'%1' does not exist.").arg(fileName));
+            QMessageBox::critical(this, QApplication::applicationName(), tr("'%1' does not exist.").arg(fileName));
         }
     }
 }
 
 void CommandWindow::on_actionAbout_triggered()
 {
-    QString text = QString("%1 - <a href='https://github.com/M-itch/qtercon'>%2</a><br />This program uses Qt version %3.")
+    QString text = tr("Version %1 - <a href='https://github.com/M-itch/qtercon'>Source</a><br />"
+                      "This program uses Qt version %2.")
                    .arg(QApplication::applicationVersion())
-                   .arg(GIT_VERSION)
                    .arg(QT_VERSION_STR);
-    QMessageBox::about(this,
-                       QApplication::applicationName(),
-                       text);
+    QMessageBox::about(this, QApplication::applicationName(), text);
 }

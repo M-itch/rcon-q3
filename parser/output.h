@@ -9,11 +9,11 @@ class Output
 public:
     Output(QString text = "", QColor color = QColor());
     QString getText() const;
-    void setText(const QString &value);
+    void setText(QString value);
     QColor getColor() const;
-    void setColor(const QColor &value);
-    QString toHtml();
-    QString toPreFormatHtml();
+    void setColor(QColor value);
+    QString toHtml() const;
+    QString toPreFormatHtml() const;
 private:
     QString text;
     QColor color;

@@ -10,14 +10,14 @@ public:
     QString getName() const;
     QString getFullName() const;
     QString getNameHtml() const;
-    void setName(const QString& value);
+    void setName(QString value);
     int getScore() const;
     void setScore(int value);
     int getPing() const;
     void setPing(int value);
 private:
-    QString name;
     QString fullName;
+    QString name;
     QString nameHtml;
     int score;
     int ping;

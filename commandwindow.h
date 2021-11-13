@@ -20,7 +20,7 @@ class CommandWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit CommandWindow(const Server server, QMainWindow* mainWindow, QWidget* parent = 0);
+    explicit CommandWindow(const Server& server, QMainWindow* mainWindow, QWidget* parent = nullptr);
     ~CommandWindow();
 
 protected:

@@ -1,12 +1,12 @@
 #include "query.h"
 
-Query::Query(const QString& server, int port, QObject *parent) : QObject(parent) {
+Query::Query(const QString& server, quint16 port, QObject *parent) : QObject(parent) {
     connect(&socket, SIGNAL(readyRead()), this, SLOT(readPendingDatagrams()));
     connect(&socket, SIGNAL(connected()), this, SIGNAL(connected()));
     socket.connectToHost(server, port, QIODevice::ReadWrite, QAbstractSocket::IPv4Protocol);
 }
 
-int Query::getPing() {
+qint64 Query::getPing() const {
     return lastRequest.msecsTo(firstResponse);
 }
 
@@ -25,8 +25,7 @@ void Query::readPendingDatagrams() {
         QHostAddress sender;
         quint16 senderPort;
 
-        socket.readDatagram(datagram.data(), datagram.size(),
-                             &sender, &senderPort);
+        socket.readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
         data.append(datagram); // Combine message with multiple datagrams.
     }
 

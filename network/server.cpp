@@ -1,6 +1,6 @@
 #include "server.h"
 
-Server::Server(QString ip, int port, QByteArray rconPassword)
+Server::Server(QString ip, quint16 port, QByteArray rconPassword)
     : ip(ip),
       port(port),
       rconPassword(rconPassword) {
@@ -14,11 +14,11 @@ void Server::setIp(const QString &value) {
     ip = value;
 }
 
-int Server::getPort() const {
+quint16 Server::getPort() const {
     return port;
 }
 
-void Server::setPort(int value) {
+void Server::setPort(quint16 value) {
     port = value;
 }
 
@@ -30,10 +30,16 @@ void Server::setRconPassword(const QByteArray &value) {
     rconPassword = value;
 }
 
-QJsonObject Server::toJSON() {
+QJsonObject Server::toJSON() const {
     QJsonObject json;
     json["ip"] = ip;
     json["port"] = port;
-    json["password"] = QString(rconPassword);
+    json["password"] = QString(rconPassword.toBase64());
     return json;
+}
+
+Server Server::fromJson(const QJsonObject& object, bool oldFormat) {
+    return Server(object["ip"].toString(),
+                  static_cast<quint16>(object["port"].toInt()),
+                  oldFormat ? object["password"].toString().toUtf8() : QByteArray::fromBase64(object["password"].toString().toUtf8()));
 }

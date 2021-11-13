@@ -1,10 +1,16 @@
 #include "outputparser.h"
 #include <QRegularExpression>
-#include <utility> // std::move
-
 const QString OutputParser::printHeader = "ÿÿÿÿprint\n";
+const std::unordered_map<int, QColor> OutputParser::numberToColorTable = {{1, Qt::red},
+                                                                          {2, Qt::green},
+                                                                          {3, Qt::darkYellow},
+                                                                          {4, Qt::blue},
+                                                                          {5, Qt::cyan},
+                                                                          {6, QColor(255, 105, 180)}, // pink
+                                                                          {8, Qt::darkGreen},
+                                                                          {9, Qt::gray}};
 
-QList<Output> OutputParser::parse(QString data, bool noDoubleColors) {
+std::vector<Output> OutputParser::parse(QString data, bool noDoubleColors) {
     data = removePrintHeader(data);
     if (noDoubleColors) {
         data = removeDoubleColors(data);
@@ -14,32 +20,29 @@ QList<Output> OutputParser::parse(QString data, bool noDoubleColors) {
 }
 
 QString OutputParser::parseToHtml(QString data) {
-    QList<Output> list = parse(data);
+    std::vector<Output> list = parse(data);
     QString output = "";
-    QList<Output>::iterator i;
-    for (i = list.begin(); i != list.end(); ++i) {
+    for (auto i = list.cbegin(); i != list.cend(); ++i) {
         output.append(i->toHtml());
     }
 
     return output;
 }
 
-QList<Output> OutputParser::splitColors(QString data) {
+std::vector<Output> OutputParser::splitColors(const QString& data) {
     int startIndex = 0;
     QColor color = Qt::black;
-    QList<Output> output;
+    std::vector<Output> output;
     for (int i = 0 ; i < data.length() ; i++) {
         if (data[i] == '^' && data.length() > i+1
                 && data[i+1].isDigit()) {
-            output.append(std::move(Output(data.mid(startIndex, i - startIndex),
-                                           color)));
+            output.emplace_back(Output(data.mid(startIndex, i - startIndex), color));
             color = numberToColor(data[i+1].digitValue());
             startIndex = i+2; // skip ^x
         }
     }
 
-    output.append(std::move(Output(data.right(data.length() - startIndex),
-                                   color))); // last text
+    output.emplace_back(Output(data.right(data.length() - startIndex), color)); // last text
 
     return output;
 }
@@ -62,36 +65,6 @@ QString OutputParser::removePrintHeader(QString data) {
 }
 
 QColor OutputParser::numberToColor(int number) {
-    QColor color = Qt::black; // Also 7 (white)
-    switch (number) {
-        case 1:
-            color = Qt::red;
-            break;
-        case 2:
-            color = Qt::green;
-            break;
-        case 3:
-            color = Qt::darkYellow;
-            break;
-        case 4:
-            color = Qt::blue;
-            break;
-        case 5:
-            color = Qt::cyan;
-            break;
-        case 6: // pink
-            color = QColor(255, 105, 180);
-            break;
-        case 8:
-            color = Qt::darkGreen;
-            break;
-        case 9:
-            color = Qt::gray;
-            break;
-
-        default:
-            break;
-    }
-
-    return color;
+    auto color = numberToColorTable.find(number);
+    return color != numberToColorTable.end() ? color->second : Qt::black;
 }

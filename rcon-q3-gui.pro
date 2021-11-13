@@ -13,18 +13,14 @@ win32 {
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = qtercon
+TARGET = rcon-q3-gui
 TEMPLATE = app
 
 RC_ICONS = resources/codlogo.ico
-VERSION = 0.1.0.10
-QMAKE_TARGET_PRODUCT = QteRcon
-QMAKE_TARGET_DESCRIPTION = QteRcon
-GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
+VERSION = 0.2.0.0
+QMAKE_TARGET_PRODUCT = rcon q3
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
-DEFINES += APP_NAME=\\\"$$QMAKE_TARGET_PRODUCT\\\"
-DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 
 SOURCES += main.cpp\
         serverwindow.cpp \
@@ -36,7 +32,6 @@ SOURCES += main.cpp\
     network/server.cpp \
     parser/statusparser.cpp \
     parser/player.cpp \
-    parser/status.cpp \
     playertablemodel.cpp \
     htmldelegate.cpp
 

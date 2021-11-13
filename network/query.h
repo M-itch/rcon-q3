@@ -8,10 +8,8 @@ class Query : public QObject
 {
     Q_OBJECT
 public:
-    Query(const QString& server,
-          int port,
-          QObject* parent = 0);
-    int getPing();
+    Query(const QString& server, quint16 port, QObject* parent = nullptr);
+    qint64 getPing() const;
     void send(QByteArray command);
 signals:
     void receive(QString output);

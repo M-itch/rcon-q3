@@ -9,25 +9,25 @@ QString Output::getText() const {
     return text;
 }
 
-void Output::setText(const QString &value) {
-    text = value;
+void Output::setText(QString value) {
+    text.swap(value);
 }
 
 QColor Output::getColor() const {
     return color;
 }
 
-void Output::setColor(const QColor &value) {
+void Output::setColor(QColor value) {
     color = value;
 }
 
-QString Output::toHtml() {
+QString Output::toHtml() const {
     return QString("<font color='%1'>%2</font>").arg(color.name())
                                                 .arg(text)
            .replace("\n", "<br />");
 }
 
-QString Output::toPreFormatHtml() {
+QString Output::toPreFormatHtml() const {
     return QString("<font color='%1'><pre>%2</pre></font>").arg(color.name())
                                                            .arg(text)
            .replace("\n", "<br />");

@@ -7,21 +7,20 @@
 #include <QJsonDocument>
 #include <QMessageBox>
 #include <QStandardPaths>
-#include <utility> // std::move
+#include <utility>
 #ifdef Q_OS_WIN
 #include <QWinJumpList>
 #include <QWinJumpListCategory>
 #include <QWinJumpListItem>
 #endif
 
-QString ServerWindow::serverFileNameFormat = "%1/servers.dat";
+const QString ServerWindow::serverFileNameFormat = "%1/servers.dat";
 
 ServerWindow::ServerWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::ServerWindow)
 {
     ui->setupUi(this);
-    readServers();
 }
 
 ServerWindow::~ServerWindow()
@@ -88,7 +87,7 @@ void ServerWindow::on_saveButton_clicked()
     }
 
     Server s(ui->ipEdit->text(),
-             ui->portBox->text().toInt(),
+             ui->portBox->text().toUShort(),
              ui->passwordEdit->text().toUtf8());
     serverList.insert(ui->profileBox->currentText(), std::move(s));
     updateComboBoxItems(ui->profileBox, ui->profileBox->currentText());
@@ -129,7 +128,7 @@ void ServerWindow::on_profileBox_currentIndexChanged(const QString& currentText)
         ui->defaultCheck->setChecked(false);
     }
 
-    Server s = serverList.value(ui->profileBox->currentText());
+    const Server s = serverList.value(ui->profileBox->currentText());
     ui->ipEdit->setText(s.getIp());
     ui->portBox->setValue(s.getPort());
     ui->passwordEdit->setText(s.getRconPassword());
@@ -140,7 +139,7 @@ void ServerWindow::updateComboBoxItems(QComboBox* combo, QString newItemText)
     bool foundItem = false;
     int insertIndex = 0;
     for (int i = 0; i < combo->count();  i++) {
-        QString currentText = combo->itemText(i);
+        const QString currentText = combo->itemText(i);
         if (currentText == newItemText) {
             foundItem = true;
         } else if (newItemText > currentText) {
@@ -153,7 +152,7 @@ void ServerWindow::updateComboBoxItems(QComboBox* combo, QString newItemText)
     }
 }
 
-void ServerWindow::readServers()
+void ServerWindow::readServers(bool oldFormat)
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QFile file(QString(serverFileNameFormat).arg(path));
@@ -162,20 +161,15 @@ void ServerWindow::readServers()
         return;
     }
 
-    QTextStream in(&file);
-    QString serverData = in.readAll();
-    // TODO decrypt using QCA
-    QJsonObject jsonObject = QJsonDocument::fromJson(serverData.toUtf8()).object();
-    QJsonArray jsonArray = jsonObject["servers"].toArray();
-    foreach (const QJsonValue & value, jsonArray) {
-        QJsonObject obj = value.toObject();
-        Server s(obj["ip"].toString(),
-                 obj["port"].toInt(),
-                 obj["password"].toString().toUtf8());
-        serverList.insert(obj["profile"].toString(), s);
+    QByteArray serverData = file.readAll();
+    QJsonObject rootObject = QJsonDocument::fromJson(serverData).object();
+    QJsonArray serversArray = rootObject["servers"].toArray();
+    foreach (const QJsonValue& value, serversArray) {
+        const QJsonObject& serverObj = value.toObject();
+        serverList.insert(serverObj["profile"].toString(), Server::fromJson(serverObj, oldFormat));
     }
 
-    defaultServer = jsonObject["default"].toString();
+    defaultServer = rootObject["default"].toString();
     ui->profileBox->addItems(serverList.keys());
     ui->profileBox->setCurrentText(defaultServer);
     on_profileBox_currentIndexChanged(defaultServer);
@@ -196,19 +190,30 @@ void ServerWindow::writeServers()
     }
 
     QMapIterator<QString, Server> i(serverList);
-    QJsonArray jsonArray;
+    QJsonArray serversArray;
     while (i.hasNext()) {
-        Server s = i.next().value();
-        QJsonObject serverJson = s.toJSON();
-        serverJson["profile"] = i.key();
-        jsonArray.append(serverJson);
+        const Server s = i.next().value();
+        QJsonObject serverObject = s.toJSON();
+        serverObject["profile"] = i.key();
+        serversArray.append(serverObject);
     }
 
     QJsonObject rootObject;
-    rootObject["servers"] = jsonArray;
+    rootObject["servers"] = serversArray;
     rootObject["default"] = defaultServer;
-    QJsonDocument document(rootObject);
-    QString data = document.toJson(QJsonDocument::Compact);
-    // TODO encrypt with QCA
+
+    QString data = QJsonDocument(rootObject).toJson(QJsonDocument::Compact);
     file.write(data.toUtf8());
+}
+
+bool ServerWindow::moveToNewAppFolderLocation(const QString& oldApplicationName)
+{
+    bool moved = false;
+    QDir dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    dir.cdUp();
+    if (dir.exists(oldApplicationName)) {
+        moved = dir.rename(oldApplicationName, QApplication::applicationName());
+    }
+
+    return moved;
 }

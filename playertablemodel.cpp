@@ -1,36 +1,40 @@
 #include "playertablemodel.h"
 #include <parser/outputparser.h>
-#include <utility> // std::move
+#include <utility>
 
 PlayerTableModel::PlayerTableModel(QObject* parent)
     : QAbstractTableModel(parent),
-      headers({"Name", "Score", "Ping"}) {
+      headers({tr("Name"), tr("Score"), tr("Ping")}) {
 }
 
-QList<Player> PlayerTableModel::getPlayers() const {
+int PlayerTableModel::getPlayerCount() const {
+    return static_cast<int>(players.size());
+}
+
+std::vector<Player> PlayerTableModel::getPlayers() const {
     return players;
 }
 
-void PlayerTableModel::setPlayers(QList<Player> players) {
+void PlayerTableModel::setPlayers(std::vector<Player> players) {
     emit layoutAboutToBeChanged();
     this->players = std::move(players);
     emit layoutChanged();
 }
 
-QList<QString> PlayerTableModel::getHeaders() const {
+std::vector<QString> PlayerTableModel::getHeaders() const {
     return headers;
 }
 
-void PlayerTableModel::setHeaders(QList<QString> headers) {
+void PlayerTableModel::setHeaders(std::vector<QString> headers) {
     this->headers = std::move(headers);
 }
 
 int PlayerTableModel::rowCount(const QModelIndex&) const {
-    return players.size();
+    return static_cast<int>(players.size());
 }
 
 int PlayerTableModel::columnCount(const QModelIndex&) const {
-    return headers.size();
+    return static_cast<int>(headers.size());
 }
 
 QVariant PlayerTableModel::data(const QModelIndex& index, int role) const {
@@ -47,8 +51,8 @@ QVariant PlayerTableModel::headerData(int section,
                                       Qt::Orientation orientation,
                                       int role) const {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal
-            && section < headers.size()) {
-        return headers[section];
+            && section < static_cast<int>(headers.size())) {
+        return headers[static_cast<unsigned int>(section)];
     } else {
         return QVariant();
     }
@@ -56,13 +60,14 @@ QVariant PlayerTableModel::headerData(int section,
 
 QVariant PlayerTableModel::getDataFromIndex(const QModelIndex& index) const {
     QVariant data;
-    if (index.row() < players.size()) {
+    if (index.row() < static_cast<int>(players.size())) {
+        auto row = static_cast<unsigned int>(index.row());
         if (index.column() == 0) {
-            data = players[index.row()].getNameHtml();
+            data = players[row].getNameHtml();
         } else if (index.column() == 1) {
-            data = players[index.row()].getScore();
+            data = players[row].getScore();
         } else if (index.column() == 2) {
-            data = players[index.row()].getPing();
+            data = players[row].getPing();
         }
     }
 

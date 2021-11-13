@@ -5,10 +5,14 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName(APP_NAME);
+    a.setApplicationName("rcon-q3");
     a.setApplicationVersion(APP_VERSION);
     QDir::setCurrent(QApplication::applicationDirPath());
+
     ServerWindow w;
+    bool moved = w.moveToNewAppFolderLocation("qtercon");
+    w.readServers(moved);
+    if (moved) w.writeServers();
 
     bool connectedToServer = false;
     QStringList arguments = a.arguments();

@@ -1,12 +1,12 @@
 #include "rcon.h"
 
-Rcon::Rcon(const Server server, QObject* parent)
-    : Query(server.getIp(), server.getPort(), parent) {
-    rconPassword = server.getRconPassword();
+Rcon::Rcon(const Server& server, QObject* parent)
+    : Query(server.getIp(), server.getPort(), parent),
+      rconPassword(server.getRconPassword()) {
 }
 
 void Rcon::setPassword(QByteArray password) {
-    rconPassword = password;
+    rconPassword.swap(password);
 }
 
 void Rcon::send(QByteArray command) {

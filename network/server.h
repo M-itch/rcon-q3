@@ -7,17 +7,18 @@
 class Server
 {
 public:
-    Server(QString ip = "", int port = 28960, QByteArray rconPassword = "");
+    Server(QString ip = "", quint16 port = 28960, QByteArray rconPassword = "");
     QString getIp() const;
     void setIp(const QString &value);
-    int getPort() const;
-    void setPort(int value);
+    quint16 getPort() const;
+    void setPort(quint16 value);
     QByteArray getRconPassword() const;
     void setRconPassword(const QByteArray &value);
-    QJsonObject toJSON();
+    QJsonObject toJSON() const;
+    static Server fromJson(const QJsonObject& object, bool oldFormat = false);
 private:
     QString ip;
-    int port;
+    quint16 port;
     QByteArray rconPassword;
 };
 

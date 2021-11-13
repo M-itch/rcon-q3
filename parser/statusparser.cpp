@@ -1,6 +1,5 @@
 #include "statusparser.h"
 #include <QStringListIterator>
-#include <utility> // std::move
 
 const QString StatusParser::printStatusHeader = "ÿÿÿÿstatusResponse\n";
 
@@ -10,7 +9,7 @@ Status StatusParser::parse(QString data) {
 
     QString variableData = playerList.first();
     playerList.removeFirst();
-    QStringList variableList = variableData.split("\\", QString::SkipEmptyParts);
+    QStringList variableList = variableData.split("\\", Qt::SkipEmptyParts);
     QStringListIterator it(variableList);
     Status status;
     while (it.hasNext()) {
@@ -29,9 +28,7 @@ Status StatusParser::parse(QString data) {
             QString playerName = QStringList(playerData.mid(2)).join(" ");
             playerName.chop(1); // remove first "
             playerName.remove(0, 1); // remove last "
-            status.players.append(std::move(Player(playerName,
-                                                   playerData[0].toInt(),
-                                                   playerData[1].toInt())));
+            status.players.emplace_back(playerName, playerData[0].toInt(), playerData[1].toInt());
         }
     }
 
