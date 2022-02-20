@@ -24,8 +24,8 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 SOURCES += main.cpp\
         serverwindow.cpp \
-    network\rcon.cpp \
-    network\query.cpp \
+    network/rcon.cpp \
+    network/query.cpp \
     parser/outputparser.cpp \
     parser/output.cpp \
     commandwindow.cpp \
@@ -36,8 +36,8 @@ SOURCES += main.cpp\
     htmldelegate.cpp
 
 HEADERS  += serverwindow.h \
-    network\rcon.h \
-    network\query.h \
+    network/rcon.h \
+    network/query.h \
     parser/outputparser.h \
     parser/output.h \
     commandwindow.h \
