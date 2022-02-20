@@ -1,7 +1,7 @@
 #include "statusparser.h"
 #include <QStringListIterator>
 
-const QString StatusParser::printStatusHeader = "ÿÿÿÿstatusResponse\n";
+const QString StatusParser::printStatusHeader = "\xff\xff\xff\xffstatusResponse\n";
 
 Status StatusParser::parse(QString data) {
     data = stripResponseHeader(data);

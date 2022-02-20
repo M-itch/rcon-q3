@@ -51,13 +51,11 @@ private:
     PlayerTableModel* playerModel;
     QSortFilterProxyModel* proxyModel;
     QDateTime lastCommand;
-    QString baseWindowTitle;
+    QString baseWindowTitle = "Commands";
     QString logFileName;
     QSettings preferences;
-    bool disconnect;
-    static QString logFileNameFormat;
+    bool disconnect = false;
     static QString autoCompletionFileName;
-    static QString preferencesFileName;
     void sendCommand(QByteArray command);
     void writeToLog(QString line);
     void loadAutoCompletionCommands();

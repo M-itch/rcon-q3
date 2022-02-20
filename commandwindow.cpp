@@ -12,9 +12,7 @@
 #include <QMessageBox>
 #include <utility>
 
-QString CommandWindow::logFileNameFormat = "%1/log_%2_%3.log";
 QString CommandWindow::autoCompletionFileName = "commands.txt";
-QString CommandWindow::preferencesFileName = "preferences.ini";
 
 CommandWindow::CommandWindow(const Server& server, QMainWindow* mainWindow, QWidget* parent) :
     QMainWindow(parent),
@@ -25,12 +23,9 @@ CommandWindow::CommandWindow(const Server& server, QMainWindow* mainWindow, QWid
     playerModel(new PlayerTableModel(this)),
     proxyModel(new QSortFilterProxyModel()),
     lastCommand(QDateTime::currentDateTime().addDays(-1)),
-    baseWindowTitle(windowTitle()),
-    logFileName(QString(logFileNameFormat).arg(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
-                                            .arg(server.getIp())
-                                            .arg(server.getPort())),
-    preferences(preferencesFileName, QSettings::IniFormat),
-    disconnect(false)
+    logFileName(QString("%1/log_%2_%3.log").arg(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), server.getIp())
+                                           .arg(server.getPort())),
+    preferences("preferences.ini", QSettings::IniFormat)
 {
     ui->setupUi(this);
     proxyModel->setSourceModel(playerModel);
@@ -83,17 +78,11 @@ void CommandWindow::onReceiveStatus(QString output)
     QMap<QString, QString> v = std::move(statusData.variables);
     playerModel->setPlayers(std::move(statusData.players));
     QString serverStatus = (status->getPing() > 0) ? QString(" ~ %1 ms").arg(status->getPing()) : "";
-    setWindowTitle(QString("%1 - %2 %3 [%4/%5]%6").arg(baseWindowTitle)
-                                                  .arg(v.value("gamename"))
-                                                  .arg(v.value("shortversion"))
-                                                  .arg(playerModel->getPlayerCount())
-                                                  .arg(v.value("sv_maxclients"))
-                                                  .arg(serverStatus));
-
+    setWindowTitle(QString("%1 - %2 %3 [%4/%5]%6")
+                   .arg(baseWindowTitle, v.value("gamename"), v.value("shortversion"))
+                   .arg(playerModel->getPlayerCount()).arg(v.value("sv_maxclients"), serverStatus));
     QString hostname = OutputParser::removeColors(v.value("sv_hostname"));
-    QString statusMessage = QString("%1 (%2) - %3").arg(v.value("mapname"))
-                            .arg(v.value("g_gametype"))
-                            .arg(hostname);
+    QString statusMessage = QString("%1 (%2) - %3").arg(v.value("mapname"), v.value("g_gametype"), hostname);
     if (statusMessage != ui->statusbar->currentMessage()) {
         ui->statusbar->showMessage(statusMessage);
     }
@@ -147,7 +136,7 @@ void CommandWindow::on_actionExit_triggered()
 
 void CommandWindow::on_actionPreferences_triggered()
 {
-    openFileAsDefault(preferencesFileName);
+    openFileAsDefault(preferences.fileName());
 }
 
 void CommandWindow::on_actionView_log_triggered()
@@ -230,7 +219,6 @@ void CommandWindow::on_actionAbout_triggered()
 {
     QString text = tr("Version %1 - <a href='https://github.com/M-itch/qtercon'>Source</a><br />"
                       "This program uses Qt version %2.")
-                   .arg(QApplication::applicationVersion())
-                   .arg(QT_VERSION_STR);
+                   .arg(QApplication::applicationVersion(), QT_VERSION_STR);
     QMessageBox::about(this, QApplication::applicationName(), text);
 }

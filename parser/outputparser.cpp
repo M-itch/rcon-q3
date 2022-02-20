@@ -1,6 +1,7 @@
 #include "outputparser.h"
 #include <QRegularExpression>
-const QString OutputParser::printHeader = "ÿÿÿÿprint\n";
+
+const QString OutputParser::printHeader = "\xff\xff\xff\xffprint\n";
 const std::unordered_map<int, QColor> OutputParser::numberToColorTable = {{1, Qt::red},
                                                                           {2, Qt::green},
                                                                           {3, Qt::darkYellow},
@@ -49,15 +50,18 @@ std::vector<Output> OutputParser::splitColors(const QString& data) {
 
 /// Removes ^x and ^^xx.
 QString OutputParser::removeColors(QString data) {
-    data.remove(QRegularExpression("\\^\\^\\d\\d"));
-    return data.remove(QRegularExpression("\\^\\d"));
+    static QRegularExpression singleExpression("\\^\\d");
+    static QRegularExpression doubleExpression("\\^\\^\\d\\d");
+    data.remove(doubleExpression);
+    return data.remove(singleExpression);
 }
 
 /// Replaces ^^x with ^.
 /// Before: ^^xy
 /// After: ^y
 QString OutputParser::removeDoubleColors(QString data) {
-    return data.replace(QRegularExpression("\\^\\^\\d"), "^");
+    static QRegularExpression expression("\\^\\^\\d");
+    return data.replace(expression, "^");
 }
 
 QString OutputParser::removePrintHeader(QString data) {
